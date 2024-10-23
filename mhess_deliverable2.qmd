@@ -1,0 +1,110 @@
+---
+title: "Deliverable 2"
+author: "Madison Hess"
+description: ""
+date: "October 15, 2024"
+format: 
+  html: 
+    embed-resources: true
+    self-contained-math: true
+---
+```{r load-packages}
+#| message: false
+#| warning: false
+library(tidyverse)
+library(readxl)
+library(readr)
+library(dplyr)
+library(haven) #for loading other datafiles (SAS, STATA, SPSS, etc.)
+library(stringr) 
+library(lubridate) 
+```
+
+### **For U.S. Census Bureau data:**
+```{r dataset 1}
+
+census_pop <- read_csv("https://raw.githubusercontent.com/Data-Pre-Processing/Deliverable1/refs/heads/main/dataFiles/PEPPOP2019.PEPANNRES-2024-09-24T004044.csv") #reading in data set
+
+colnames(census_pop) <- gsub("!.*", "", colnames(census_pop)) #getting rid of unnecessary symbols in col names
+
+#we only want to look at population estimates from 2019 so this code removes the years we don't care about  
+dim(census_pop)
+
+census_pop = census_pop|>
+select(1, 13)
+
+#getting rid of spacing and parentheses in col names
+census_pop = census_pop|>
+  rename(county = `Geographic Area Name (Grouping)`)|>
+  rename(population_est_2019 = `7/1/2019 population estimate`)
+
+#creating a separate column for state
+split_result = strsplit(census_pop$county, split = ',', fixed = T)
+
+state=c()
+for (elements in split_result){
+  state=c(state, elements[2])
+}
+state
+
+county=c()
+for (elements in split_result){
+  county=c(county, elements[1])
+}
+county
+
+census_pop$state = state
+census_pop$county = county
+
+#getting rid of unwanted spaces before state names and moving the column next to county
+census_pop = census_pop|>
+  mutate(state = str_replace(state, "^\\s+", ""))|>
+  relocate(state, .before = population_est_2019)
+
+write_csv(census_pop, "/Users/madisonhess/Documents/DPP690/Deliverable2/Deliverable2/DataCleanAndFormatted/censuspop_clean.csv")
+
+str(census_pop) #to check if properly formatted
+
+saveRDS(census_pop, "/Users/madisonhess/Documents/DPP690/Deliverable2/Deliverable2/DataCleanAndFormatted/censuspop_formatted.rds")
+```
+
+### **For scraped Wiki data:**
+```{r dataset 2}
+
+counties <- read_csv("https://raw.githubusercontent.com/Data-Pre-Processing/Deliverable1/refs/heads/main/dataFiles/countyList.csv") #reading in dataset to be cleaned
+
+colnames(counties) #retrieving column names so they can be altered
+
+#getting rid of unwanted symbols in column names
+cleaned = counties|>
+  rename("county" = "County", "FIPS_code" = "FIPS code[14]\n\n", "county_seat" = "County seat[15]\n\n", "year_established" = "Est.[16]\n\n", "population" = "Population[17]", "area_sq_mi" = "Area[16]", "etymology" = "Etymology[11]", "origin" = "Origin[10]\n\n")
+
+#getting rid of unit info in area column to change to numeric class later
+cleaned_counties = cleaned|>
+ mutate(area_sq_mi = gsub("\\s*\\(.*?\\)", "", area_sq_mi))|>
+  mutate(area_sq_mi = gsub("[^0-9]", "", area_sq_mi))
+
+#getting rid of unknown characters in 'etymology' and 'origin'
+
+cleaner = cleaned_counties|>
+ mutate(etymology = gsub("\\ \\(.*\\)", "", etymology))|>
+  mutate(origin = gsub("\\[.*\\]", "", origin))|>
+  mutate(etymology = gsub("\\â.*\\ ", "", etymology))
+
+cleaner = cleaner|>
+  select(2:9) #getting rid of unwanted row names and Map column (since all values are NA)
+
+write.csv(cleaner, "/Users/madisonhess/Documents/DPP690/Deliverable2/Deliverable2/DataCleanAndFormatted/clean_wikicounties.csv")
+
+str(cleaner) #notice that Area_sq_mile is chr data type
+
+#changing cols to numeric
+cleaner = cleaner|>
+  mutate(area_sq_mi = as.numeric(area_sq_mi))
+
+str(cleaner$area_sq_mi)
+
+#FIPS code column must be chr data type because we need leading zeroes in county codes
+
+saveRDS(cleaner, "/Users/madisonhess/Documents/DPP690/Deliverable2/Deliverable2/DataCleanAndFormatted/formatted_wikicounties.rds")
+```

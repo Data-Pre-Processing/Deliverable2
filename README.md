@@ -9,10 +9,10 @@ R to clean and format existing .csv files
 
 ## Data in the repo:
 The data is contained in the DataCleanAndFormatted folder and includes:
-* Cleaned US Census Bureau data on population estimates in Massachusetts by county in 2019 (census_clean.csv)
-* Formatted US Census Bureau data on population estimates in Massachusetts by county in 2019 (census_formatted.csv)
-* Cleaned list of counties in Massachusetts from Wikipedia, along with their area by square mile and other key information (clean_wiki.csv)
-* Formattted list of counties in Massachusetts from Wikipedia, along with their area by square mile and other key information (formatted_wiki.csv)
+* Cleaned US Census Bureau data on population estimates in Massachusetts by county in 2019 (censuspop_clean.csv)
+* Formatted US Census Bureau data on population estimates in Massachusetts by county in 2019 (censuspop_formatted.csv)
+* Cleaned list of counties in Massachusetts from Wikipedia, along with their area by square mile and other key information (clean_wikicounties.csv)
+* Formattted list of counties in Massachusetts from Wikipedia, along with their area by square mile and other key information (formatted_wikicounties.csv)
 
 ## Variables to be used:
 From US Census population estimates:

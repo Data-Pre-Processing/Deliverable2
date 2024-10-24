@@ -3109,10 +3109,11 @@ vertical-align: -.125em;
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readxl)</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(haven) <span class="co">#for loading other datafiles (SAS, STATA, SPSS, etc.)</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stringr) </span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lubridate) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readr)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(haven) <span class="co">#for loading other datafiles (SAS, STATA, SPSS, etc.)</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stringr) </span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lubridate) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <section id="for-u.s.-census-bureau-data" class="level3">
 <h3 class="anchored" data-anchor-id="for-u.s.-census-bureau-data"><strong>For U.S. Census Bureau data:</strong></h3>
@@ -3141,23 +3142,58 @@ num (12): 4/1/2010 Census population!!Population, 4/1/2010 population estima...
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co">#getting rid of spacing and parentheses in col names</span></span>
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>census_pop <span class="ot">=</span> census_pop<span class="sc">|&gt;</span></span>
 <span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">county =</span> <span class="st">`</span><span class="at">Geographic Area Name (Grouping)</span><span class="st">`</span>)<span class="sc">|&gt;</span></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">population_est_2010 =</span> <span class="st">`</span><span class="at">7/1/2019 population estimate</span><span class="st">`</span>)</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">population_est_2019 =</span> <span class="st">`</span><span class="at">7/1/2019 population estimate</span><span class="st">`</span>)</span>
 <span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(census_pop, <span class="st">&quot;census_clean.csv&quot;</span>)</span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(census_pop) <span class="co">#to check if properly formatted</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="co">#creating a separate column for state</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>split_result <span class="ot">=</span> <span class="fu">strsplit</span>(census_pop<span class="sc">$</span>county, <span class="at">split =</span> <span class="st">&#39;,&#39;</span>, <span class="at">fixed =</span> T)</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>state<span class="ot">=</span><span class="fu">c</span>()</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (elements <span class="cf">in</span> split_result){</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>  state<span class="ot">=</span><span class="fu">c</span>(state, elements[<span class="dv">2</span>])</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>state</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>tibble [14 × 2] (S3: tbl_df/tbl/data.frame)
- $ county             : chr [1:14] &quot;Barnstable County, Massachusetts&quot; &quot;Berkshire County, Massachusetts&quot; &quot;Bristol County, Massachusetts&quot; &quot;Dukes County, Massachusetts&quot; ...
- $ population_est_2010: num [1:14] 212990 124944 565217 17332 789034 ...</code></pre>
+<pre><code> [1] &quot; Massachusetts&quot; &quot; Massachusetts&quot; &quot; Massachusetts&quot; &quot; Massachusetts&quot;
+ [5] &quot; Massachusetts&quot; &quot; Massachusetts&quot; &quot; Massachusetts&quot; &quot; Massachusetts&quot;
+ [9] &quot; Massachusetts&quot; &quot; Massachusetts&quot; &quot; Massachusetts&quot; &quot; Massachusetts&quot;
+[13] &quot; Massachusetts&quot; &quot; Massachusetts&quot;</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(census_pop, <span class="st">&quot;census_formatted.rds&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>county<span class="ot">=</span><span class="fu">c</span>()</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (elements <span class="cf">in</span> split_result){</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  county<span class="ot">=</span><span class="fu">c</span>(county, elements[<span class="dv">1</span>])</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>county</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] &quot;Barnstable County&quot; &quot;Berkshire County&quot;  &quot;Bristol County&quot;   
+ [4] &quot;Dukes County&quot;      &quot;Essex County&quot;      &quot;Franklin County&quot;  
+ [7] &quot;Hampden County&quot;    &quot;Hampshire County&quot;  &quot;Middlesex County&quot; 
+[10] &quot;Nantucket County&quot;  &quot;Norfolk County&quot;    &quot;Plymouth County&quot;  
+[13] &quot;Suffolk County&quot;    &quot;Worcester County&quot; </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>census_pop<span class="sc">$</span>state <span class="ot">=</span> state</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>census_pop<span class="sc">$</span>county <span class="ot">=</span> county</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="co">#getting rid of unwanted spaces before state names and moving the column next to county</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>census_pop <span class="ot">=</span> census_pop<span class="sc">|&gt;</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">state =</span> <span class="fu">str_replace</span>(state, <span class="st">&quot;^</span><span class="sc">\\</span><span class="st">s+&quot;</span>, <span class="st">&quot;&quot;</span>))<span class="sc">|&gt;</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">relocate</span>(state, <span class="at">.before =</span> population_est_2019)</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(census_pop, <span class="st">&quot;/Users/madisonhess/Documents/DPP690/Deliverable2/Deliverable2/DataCleanAndFormatted/censuspop_clean.csv&quot;</span>)</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(census_pop) <span class="co">#to check if properly formatted</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>tibble [14 × 3] (S3: tbl_df/tbl/data.frame)
+ $ county             : chr [1:14] &quot;Barnstable County&quot; &quot;Berkshire County&quot; &quot;Bristol County&quot; &quot;Dukes County&quot; ...
+ $ state              : chr [1:14] &quot;Massachusetts&quot; &quot;Massachusetts&quot; &quot;Massachusetts&quot; &quot;Massachusetts&quot; ...
+ $ population_est_2019: num [1:14] 212990 124944 565217 17332 789034 ...</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(census_pop, <span class="st">&quot;/Users/madisonhess/Documents/DPP690/Deliverable2/Deliverable2/DataCleanAndFormatted/censuspop_formatted.rds&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="for-scraped-wiki-data" class="level3">
 <h3 class="anchored" data-anchor-id="for-scraped-wiki-data"><strong>For scraped Wiki data:</strong></h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>counties <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;https://raw.githubusercontent.com/Data-Pre-Processing/Deliverable1/refs/heads/main/dataFiles/countyList.csv&quot;</span>) <span class="co">#reading in dataset to be cleaned</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>counties <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;https://raw.githubusercontent.com/Data-Pre-Processing/Deliverable1/refs/heads/main/dataFiles/countyList.csv&quot;</span>) <span class="co">#reading in dataset to be cleaned</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>New names:
 Rows: 14 Columns: 10
@@ -3176,35 +3212,35 @@ num (1): Population[17] lgl (1): Map
 Specify the column types or set `show_col_types = FALSE` to quiet this message.
 • `` -&gt; `...1`</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(counties) <span class="co">#retrieving column names so they can be altered</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(counties) <span class="co">#retrieving column names so they can be altered</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code> [1] &quot;...1&quot;                &quot;County&quot;              &quot;FIPS code[14]\n\n&quot;  
  [4] &quot;County seat[15]\n\n&quot; &quot;Est.[16]\n\n&quot;        &quot;Origin[10]\n\n&quot;     
  [7] &quot;Etymology[11]&quot;       &quot;Population[17]&quot;      &quot;Area[16]&quot;           
 [10] &quot;Map\n&quot;              </code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">#getting rid of unwanted symbols in column names</span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>cleaned <span class="ot">=</span> counties<span class="sc">|&gt;</span></span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="st">&quot;county&quot;</span> <span class="ot">=</span> <span class="st">&quot;County&quot;</span>, <span class="st">&quot;FIPS_code&quot;</span> <span class="ot">=</span> <span class="st">&quot;FIPS code[14]</span><span class="sc">\n\n</span><span class="st">&quot;</span>, <span class="st">&quot;county_seat&quot;</span> <span class="ot">=</span> <span class="st">&quot;County seat[15]</span><span class="sc">\n\n</span><span class="st">&quot;</span>, <span class="st">&quot;year_established&quot;</span> <span class="ot">=</span> <span class="st">&quot;Est.[16]</span><span class="sc">\n\n</span><span class="st">&quot;</span>, <span class="st">&quot;population&quot;</span> <span class="ot">=</span> <span class="st">&quot;Population[17]&quot;</span>, <span class="st">&quot;area_sq_mi&quot;</span> <span class="ot">=</span> <span class="st">&quot;Area[16]&quot;</span>, <span class="st">&quot;etymology&quot;</span> <span class="ot">=</span> <span class="st">&quot;Etymology[11]&quot;</span>, <span class="st">&quot;origin&quot;</span> <span class="ot">=</span> <span class="st">&quot;Origin[10]</span><span class="sc">\n\n</span><span class="st">&quot;</span>)</span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="co">#getting rid of unit info in area column to change to numeric class later</span></span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>cleaned_counties <span class="ot">=</span> cleaned<span class="sc">|&gt;</span></span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a> <span class="fu">mutate</span>(<span class="at">area_sq_mi =</span> <span class="fu">gsub</span>(<span class="st">&quot;</span><span class="sc">\\</span><span class="st">s*</span><span class="sc">\\</span><span class="st">(.*?</span><span class="sc">\\</span><span class="st">)&quot;</span>, <span class="st">&quot;&quot;</span>, area_sq_mi))<span class="sc">|&gt;</span></span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">area_sq_mi =</span> <span class="fu">gsub</span>(<span class="st">&quot;[^0-9]&quot;</span>, <span class="st">&quot;&quot;</span>, area_sq_mi))</span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="co">#getting rid of unknown characters in &#39;etymology&#39; and &#39;origin&#39;</span></span>
-<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>cleaner <span class="ot">=</span> cleaned_counties<span class="sc">|&gt;</span></span>
-<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a> <span class="fu">mutate</span>(<span class="at">etymology =</span> <span class="fu">gsub</span>(<span class="st">&quot;</span><span class="sc">\\</span><span class="st"> </span><span class="sc">\\</span><span class="st">(.*</span><span class="sc">\\</span><span class="st">)&quot;</span>, <span class="st">&quot;&quot;</span>, etymology))<span class="sc">|&gt;</span></span>
-<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">origin =</span> <span class="fu">gsub</span>(<span class="st">&quot;</span><span class="sc">\\</span><span class="st">[.*</span><span class="sc">\\</span><span class="st">]&quot;</span>, <span class="st">&quot;&quot;</span>, origin))<span class="sc">|&gt;</span></span>
-<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">etymology =</span> <span class="fu">gsub</span>(<span class="st">&quot;</span><span class="sc">\\</span><span class="st">â.*</span><span class="sc">\\</span><span class="st"> &quot;</span>, <span class="st">&quot;&quot;</span>, etymology))</span>
-<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>cleaner <span class="ot">=</span> cleaner<span class="sc">|&gt;</span></span>
-<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="dv">2</span><span class="sc">:</span><span class="dv">9</span>) <span class="co">#getting rid of unwanted row names and Map column (since all values are NA)</span></span>
-<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(cleaner, <span class="st">&quot;clean_wiki.csv&quot;</span>)</span>
-<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(cleaner) <span class="co">#notice that Area_sq_mile is chr data type</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co">#getting rid of unwanted symbols in column names</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>cleaned <span class="ot">=</span> counties<span class="sc">|&gt;</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="st">&quot;county&quot;</span> <span class="ot">=</span> <span class="st">&quot;County&quot;</span>, <span class="st">&quot;FIPS_code&quot;</span> <span class="ot">=</span> <span class="st">&quot;FIPS code[14]</span><span class="sc">\n\n</span><span class="st">&quot;</span>, <span class="st">&quot;county_seat&quot;</span> <span class="ot">=</span> <span class="st">&quot;County seat[15]</span><span class="sc">\n\n</span><span class="st">&quot;</span>, <span class="st">&quot;year_established&quot;</span> <span class="ot">=</span> <span class="st">&quot;Est.[16]</span><span class="sc">\n\n</span><span class="st">&quot;</span>, <span class="st">&quot;population&quot;</span> <span class="ot">=</span> <span class="st">&quot;Population[17]&quot;</span>, <span class="st">&quot;area_sq_mi&quot;</span> <span class="ot">=</span> <span class="st">&quot;Area[16]&quot;</span>, <span class="st">&quot;etymology&quot;</span> <span class="ot">=</span> <span class="st">&quot;Etymology[11]&quot;</span>, <span class="st">&quot;origin&quot;</span> <span class="ot">=</span> <span class="st">&quot;Origin[10]</span><span class="sc">\n\n</span><span class="st">&quot;</span>)</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="co">#getting rid of unit info in area column to change to numeric class later</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>cleaned_counties <span class="ot">=</span> cleaned<span class="sc">|&gt;</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a> <span class="fu">mutate</span>(<span class="at">area_sq_mi =</span> <span class="fu">gsub</span>(<span class="st">&quot;</span><span class="sc">\\</span><span class="st">s*</span><span class="sc">\\</span><span class="st">(.*?</span><span class="sc">\\</span><span class="st">)&quot;</span>, <span class="st">&quot;&quot;</span>, area_sq_mi))<span class="sc">|&gt;</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">area_sq_mi =</span> <span class="fu">gsub</span>(<span class="st">&quot;[^0-9]&quot;</span>, <span class="st">&quot;&quot;</span>, area_sq_mi))</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a><span class="co">#getting rid of unknown characters in &#39;etymology&#39; and &#39;origin&#39;</span></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>cleaner <span class="ot">=</span> cleaned_counties<span class="sc">|&gt;</span></span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a> <span class="fu">mutate</span>(<span class="at">etymology =</span> <span class="fu">gsub</span>(<span class="st">&quot;</span><span class="sc">\\</span><span class="st"> </span><span class="sc">\\</span><span class="st">(.*</span><span class="sc">\\</span><span class="st">)&quot;</span>, <span class="st">&quot;&quot;</span>, etymology))<span class="sc">|&gt;</span></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">origin =</span> <span class="fu">gsub</span>(<span class="st">&quot;</span><span class="sc">\\</span><span class="st">[.*</span><span class="sc">\\</span><span class="st">]&quot;</span>, <span class="st">&quot;&quot;</span>, origin))<span class="sc">|&gt;</span></span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">etymology =</span> <span class="fu">gsub</span>(<span class="st">&quot;</span><span class="sc">\\</span><span class="st">â.*</span><span class="sc">\\</span><span class="st"> &quot;</span>, <span class="st">&quot;&quot;</span>, etymology))</span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>cleaner <span class="ot">=</span> cleaner<span class="sc">|&gt;</span></span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="dv">2</span><span class="sc">:</span><span class="dv">9</span>) <span class="co">#getting rid of unwanted row names and Map column (since all values are NA)</span></span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(cleaner, <span class="st">&quot;/Users/madisonhess/Documents/DPP690/Deliverable2/Deliverable2/DataCleanAndFormatted/clean_wikicounties.csv&quot;</span>)</span>
+<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(cleaner) <span class="co">#notice that Area_sq_mile is chr data type</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>tibble [14 × 8] (S3: tbl_df/tbl/data.frame)
  $ county          : chr [1:14] &quot;Barnstable County&quot; &quot;Berkshire County&quot; &quot;Bristol County&quot; &quot;Dukes County&quot; ...
@@ -3216,17 +3252,17 @@ Specify the column types or set `show_col_types = FALSE` to quiet this message.
  $ population      : num [1:14] 231735 126818 581841 20819 810089 ...
  $ area_sq_mi      : chr [1:14] &quot;396&quot; &quot;931&quot; &quot;556&quot; &quot;104&quot; ...</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co">#changing cols to numeric</span></span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>cleaner <span class="ot">=</span> cleaner<span class="sc">|&gt;</span></span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">area_sq_mi =</span> <span class="fu">as.numeric</span>(area_sq_mi))</span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(cleaner<span class="sc">$</span>area_sq_mi)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co">#changing cols to numeric</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>cleaner <span class="ot">=</span> cleaner<span class="sc">|&gt;</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">area_sq_mi =</span> <span class="fu">as.numeric</span>(area_sq_mi))</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(cleaner<span class="sc">$</span>area_sq_mi)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code> num [1:14] 396 931 556 104 498 702 618 529 824 48 ...</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co">#FIPS code column must be chr data type because we need leading zeroes in county codes</span></span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(cleaner, <span class="st">&quot;formatted_wiki.rds&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co">#FIPS code column must be chr data type because we need leading zeroes in county codes</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(cleaner, <span class="st">&quot;/Users/madisonhess/Documents/DPP690/Deliverable2/Deliverable2/DataCleanAndFormatted/formatted_wikicounties.rds&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 
@@ -3654,7 +3690,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   const options = {
     origin: "",
     search: "",
-    inputFile: "/Users/madisonhess/Documents/DPP690/Deliverable2/hess_deliverable2.qmd",
+    inputFile: "/Users/madisonhess/Documents/DPP690/Deliverable2/Deliverable2/mhess_deliverable2.qmd",
     isPresentation: false
   }
   document.addEventListener("DOMContentLoaded", function () {
